@@ -14,3 +14,6 @@ wheels/
 
 # Application artifacts
 output/
+
+# Personal files and notes
+.personal/

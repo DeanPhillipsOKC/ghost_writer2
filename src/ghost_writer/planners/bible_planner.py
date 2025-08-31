@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import ValidationError
 from dotenv import load_dotenv
 from openai import OpenAI
-from ..contracts import StoryBible
+from ghost_writer.contracts import StoryBible
 
 load_dotenv()
 _client = OpenAI()
@@ -14,13 +14,12 @@ def _chat(messages, model: Optional[str] = None, response_format: Optional[dict]
     r = _client.chat.completions.create(
         model=model or _MODEL,
         messages=messages,
-        temperature=0.2,
         response_format=response_format,  # e.g., {"type": "json_object"}
     )
     return r.choices[0].message.content or ""
 
 
-def generate_story_bible(pitch: str) -> StoryBible:
+def generate_story_bible(pitch: str, model: Optional[str] = None) -> StoryBible:
     system = ("You are a head writer creating a compact Story Bible.  It must be internally consistent, "
               "grounded, and suitable for a novel-length work.  Use only the specified keys.")
     user = (
@@ -43,6 +42,7 @@ def generate_story_bible(pitch: str) -> StoryBible:
     )
     raw = _chat(
         [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        model=model,
         response_format={"type": "json_object"},
     )
     try:
@@ -58,6 +58,7 @@ def generate_story_bible(pitch: str) -> StoryBible:
         fixed = _chat(
             [{"role": "system", "content": "You fix JSON to match schemas exactly."},
              {"role": "user", "content": repair}],
+            model=model,
             response_format={"type": "json_object"},
         )
         return StoryBible.model_validate_json(fixed)

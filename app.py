@@ -28,7 +28,7 @@ pitch = st.text_area(
 out_dir = st.text_input("Output directory", value="output")
 col1, col2 = st.columns(2)
 with col1:
-    model_planner = st.selectbox("Planner model", options=["gpt-5", "gpt-5-mini", "gpt-5-nano"], index=0)
+    planner_model = st.selectbox("Planner model", options=["gpt-5", "gpt-5-mini", "gpt-5-nano"], index=0)
 with col2:
     keep_existing = st.checkbox("Do not overwrite if bible exists", value=False)
 
@@ -48,7 +48,7 @@ if go:
         st.info(f"A bible already exists at {bible_path}.  Skipping generation.")
     else:
         with st.spinner("Calling the planner model and validating JSON..."):
-            bible: StoryBible = generate_story_bible(pitch)
+            bible: StoryBible = generate_story_bible(pitch, planner_model)
 
         # Persist
         data = bible.model_dump()
